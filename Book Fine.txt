@@ -1,45 +1,55 @@
--- Original table
-CREATE TABLE O_RollCall (
-    Roll_no NUMBER PRIMARY KEY,
-    Name    VARCHAR2(50)
-);
 
--- New table with new data
-CREATE TABLE N_RollCall (
-    Roll_no NUMBER PRIMARY KEY,
-    Name    VARCHAR2(50)
-);
+Create table Borrower(Roll number, SName Varchar2(10), DateofIssue date,
+BookName Varchar2(15), Status varchar2(1));
+
+Create table Fine(Roll number, CurrentDate date, Amt number);
+insert into Borrower Values ( 1, 'Ajay', '07-20-2025','BOOK1','I');
+insert into Borrower Values ( 2, 'Ramesh', '06-25-2025','BOOK2','I');
+insert into Borrower Values ( 3, 'Umesh', '05-20-2025','BOOK1','I');
+insert into Borrower Values ( 4, 'Suresh', '07-25-2025','BOOK4','I');
+insert into Borrower Values ( 5, 'ram', '06-23-2025','BOOK5','I');
+insert into Borrower Values ( 6, 'AAAA', '05-25-2025','BOOK6','I');
+
 DECLARE
-    -- Parameterized cursor to check if Roll_no exists in O_RollCall
-    CURSOR c_check_exists(p_roll_no NUMBER) IS
-        SELECT 1 
-        FROM O_RollCall
-        WHERE Roll_no = p_roll_no;
-
+ rollno Borrower.Roll%TYPE;
+ bname Borrower.BookName%TYPE;
+ B_Issue_Date DATE;
+ Days NUMBER(4);
+ fine_amt NUMBER(4);
+ temp NUMBER(4);
 BEGIN
-  FOR rec IN (SELECT Roll_no, Name FROM N_RollCall) LOOP
-    DECLARE
-      v_count NUMBER;
-    BEGIN
-      SELECT COUNT(*) INTO v_count
-      FROM O_RollCall
-      WHERE Roll_no = rec.Roll_no;
+ rollno := :P1_ROLLNO;
+ bname := :P1_BOOKNAME;
+ DBMS_OUTPUT.PUT_LINE(' Roll No. and Book Name: ' || rollno || ' - ' || bname);
+ SELECT DateOfIssue
+ INTO B_Issue_Date
+ FROM Borrower
+ WHERE Roll = rollno
+ AND BookName = bname;
+ Days := TRUNC(SYSDATE - B_Issue_Date);
+ DBMS_OUTPUT.PUT_LINE('Total Days: ' || Days);
+ IF Days <= 15 THEN
+ fine_amt := 0;
+ DBMS_OUTPUT.PUT_LINE('No fine.');
 
-      IF v_count = 0 THEN
-        INSERT INTO O_RollCall (Roll_no, Name)
-        VALUES (rec.Roll_no, rec.Name);
-      END IF;
-    EXCEPTION
-      WHEN NO_DATA_FOUND THEN
-        NULL;
-    END;
-  END LOOP;
+ ELSIF Days BETWEEN 16 AND 30 THEN
+ temp := Days - 15;
+ fine_amt := temp * 5;
+ INSERT INTO Fine (Roll, CurrentDate, Amt)
+ VALUES (rollno, SYSDATE, fine_amt);
 
-  COMMIT;
-  DBMS_OUTPUT.PUT_LINE('Data merged successfully without duplicates.');
+ ELSE
+ temp := Days - 30;
+ fine_amt := (temp * 50) + (15 * 5);
+ INSERT INTO Fine (Roll, CurrentDate, amt)
+ VALUES (rollno, SYSDATE, fine_amt);
+ END IF;
+ UPDATE Borrower
+ SET Status = 'R'
+ WHERE Roll = rollno
+ AND BookName = bname;
+
 EXCEPTION
-  WHEN OTHERS THEN
-    DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
-    ROLLBACK;
+ WHEN NO_DATA_FOUND THEN
+ DBMS_OUTPUT.PUT_LINE('No record found for Roll No: ' || rollno || ' and Book: ' || bname);
 END;
-/
