@@ -1,0 +1,75 @@
+-- Create tables
+CREATE TABLE Sales_Representative (
+  Rep_No NUMBER PRIMARY KEY,
+  Name VARCHAR2(30),
+  Re_Office VARCHAR2(20),
+  Quota NUMBER,
+  Sales NUMBER
+);
+
+CREATE TABLE Customers (
+  Cust_No NUMBER PRIMARY KEY,
+  Company VARCHAR2(30),
+  Cust_Rep NUMBER,
+  Credit_Limit NUMBER,
+  FOREIGN KEY (Cust_Rep) REFERENCES Sales_Representative(Rep_No)
+);
+
+CREATE TABLE Orders (
+  Order_No NUMBER PRIMARY KEY,
+  Cust NUMBER,
+  Product VARCHAR2(30),
+  Quantity NUMBER,
+  Amount NUMBER,
+  Disc NUMBER,
+  FOREIGN KEY (Cust) REFERENCES Customers(Cust_No)
+);
+
+-- Insert sample data
+INSERT INTO Sales_Representative VALUES (1, 'Ravi', 'Pune', 50000, 40000);
+INSERT INTO Sales_Representative VALUES (2, 'Sneha', 'Mumbai', 60000, 45000);
+INSERT INTO Sales_Representative VALUES (3, 'Amit', 'Pune', 55000, 30000);
+
+INSERT INTO Customers VALUES (101, 'TCS', 1, 100000);
+INSERT INTO Customers VALUES (102, 'Infosys', 2, 80000);
+INSERT INTO Customers VALUES (103, 'Wipro', 3, 90000);
+
+INSERT INTO Orders VALUES (201, 101, 'Laptop', 10, 30000, 5);
+INSERT INTO Orders VALUES (202, 102, 'Printer', 5, 20000, 10);
+INSERT INTO Orders VALUES (203, 103, 'Desktop', 8, 40000, 7);
+INSERT INTO Orders VALUES (204, 101, 'Monitor', 6, 15000, 3);
+COMMIT;
+
+-- 1. Each customer: name, rep’s name, rep’s office
+SELECT c.Company AS Customer, s.Name AS Rep_Name, s.Re_Office
+FROM Customers c
+JOIN Sales_Representative s ON c.Cust_Rep = s.Rep_No;
+
+-- 2. Orders over $25,000 with salesperson and customer name
+SELECT o.Order_No, o.Product, o.Amount, c.Company AS Customer, s.Name AS Salesperson
+FROM Orders o
+JOIN Customers c ON o.Cust = c.Cust_No
+JOIN Sales_Representative s ON c.Cust_Rep = s.Rep_No
+WHERE o.Amount > 25000;
+
+-- 3. Products sold to TCS
+SELECT Product FROM Orders o
+JOIN Customers c ON o.Cust = c.Cust_No
+WHERE UPPER(c.Company)='TCS';
+
+-- 4. Company with maximum discount
+SELECT c.Company, o.Disc
+FROM Orders o
+JOIN Customers c ON o.Cust = c.Cust_No
+WHERE o.Disc = (SELECT MAX(Disc) FROM Orders);
+
+-- 5. Sales representatives who work in the same office
+SELECT s1.Name AS Rep1, s2.Name AS Rep2, s1.Re_Office
+FROM Sales_Representative s1
+JOIN Sales_Representative s2
+ON s1.Re_Office = s2.Re_Office AND s1.Rep_No < s2.Rep_No;
+
+-- 6. Company credit limit and discount received
+SELECT c.Company, c.Credit_Limit, o.Disc
+FROM Customers c
+JOIN Orders o ON c.Cust_No = o.Cust;

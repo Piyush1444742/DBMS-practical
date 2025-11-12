@@ -1,0 +1,33 @@
+CREATE TABLE areas (
+    radius NUMBER,
+    area   NUMBER
+);
+DECLARE
+    r NUMBER;
+    a NUMBER;
+BEGIN
+    FOR r IN 5..9 LOOP
+        a := 3.1416 * r * r;  -- area of circle
+        INSERT INTO areas(radius, area) VALUES(r, a);
+    END LOOP;
+    COMMIT;
+END;
+/
+CREATE OR REPLACE PROCEDURE calc_circle_area AS
+    r NUMBER;
+    a NUMBER;
+BEGIN
+    FOR r IN 5..9 LOOP
+        a := 3.1416 * r * r;
+        INSERT INTO areas(radius, area) VALUES(r, a);
+    END LOOP;
+    COMMIT;
+END;
+/
+CREATE OR REPLACE FUNCTION get_circle_areas RETURN SYS_REFCURSOR AS
+    cur SYS_REFCURSOR;
+BEGIN
+    OPEN cur FOR SELECT radius, 3.1416*radius*radius AS area FROM areas;
+    RETURN cur;
+END;
+/

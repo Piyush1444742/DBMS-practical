@@ -1,0 +1,72 @@
+-- Create tables
+CREATE TABLE Branch (
+  BName VARCHAR2(20) PRIMARY KEY,
+  City VARCHAR2(20)
+);
+
+CREATE TABLE Customers (
+  CName VARCHAR2(20) PRIMARY KEY,
+  City VARCHAR2(20)
+);
+
+CREATE TABLE Deposit (
+  ActNo NUMBER PRIMARY KEY,
+  CName VARCHAR2(20),
+  BName VARCHAR2(20),
+  Amount NUMBER(10,2),
+  ADate DATE,
+  FOREIGN KEY (CName) REFERENCES Customers(CName),
+  FOREIGN KEY (BName) REFERENCES Branch(BName)
+);
+
+CREATE TABLE Borrow (
+  LoanNo NUMBER PRIMARY KEY,
+  CName VARCHAR2(20),
+  BName VARCHAR2(20),
+  Amount NUMBER(10,2),
+  FOREIGN KEY (CName) REFERENCES Customers(CName),
+  FOREIGN KEY (BName) REFERENCES Branch(BName)
+);
+
+-- Insert sample data
+INSERT INTO Branch VALUES ('SBI', 'Bombay');
+INSERT INTO Branch VALUES ('HDFC', 'Pune');
+INSERT INTO Branch VALUES ('ICICI', 'Delhi');
+
+INSERT INTO Customers VALUES ('Anil', 'Pune');
+INSERT INTO Customers VALUES ('Sunita', 'Bombay');
+INSERT INTO Customers VALUES ('Ravi', 'Delhi');
+
+INSERT INTO Deposit VALUES (101, 'Anil', 'SBI', 5000, DATE '2024-01-10');
+INSERT INTO Deposit VALUES (102, 'Sunita', 'HDFC', 7000, DATE '2024-02-15');
+INSERT INTO Deposit VALUES (103, 'Ravi', 'ICICI', 6000, DATE '2024-03-20');
+
+INSERT INTO Borrow VALUES (201, 'Anil', 'SBI', 10000);
+INSERT INTO Borrow VALUES (202, 'Ravi', 'HDFC', 12000);
+COMMIT;
+
+-- a. Branches in city Bombay
+SELECT BName FROM Branch WHERE UPPER(City)='BOMBAY';
+
+-- b. Account no. and amount of depositors
+SELECT ActNo, Amount FROM Deposit;
+
+-- c. Update city of Anil from Pune to Mumbai
+UPDATE Customers SET City='Mumbai' WHERE CName='Anil';
+
+-- d. Number of depositors in the bank
+SELECT COUNT(*) AS No_Of_Depositors FROM Deposit;
+
+-- e. Min and Max amount of customers
+SELECT MIN(Amount) AS Min_Amt, MAX(Amount) AS Max_Amt FROM Deposit;
+
+-- f. Create index on Deposit table
+CREATE INDEX idx_deposit ON Deposit(Amount);
+
+-- g. Create view on Borrow table
+CREATE OR REPLACE VIEW v_borrow AS
+SELECT LoanNo, CName, BName, Amount
+FROM Borrow;
+
+-- To see view output
+SELECT * FROM v_borrow;

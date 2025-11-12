@@ -1,0 +1,87 @@
+-- 1. Create tables
+CREATE TABLE Publisher (
+  PID NUMBER PRIMARY KEY,
+  PName VARCHAR2(50),
+  Address VARCHAR2(100),
+  State VARCHAR2(20),
+  Phone VARCHAR2(15),
+  EmailID VARCHAR2(50)
+);
+
+CREATE TABLE Book (
+  ISBN NUMBER PRIMARY KEY,
+  Book_Title VARCHAR2(100),
+  Category VARCHAR2(30),
+  Price NUMBER(10,2),
+  Copyright_Date DATE,
+  Year NUMBER,
+  Page_Count NUMBER,
+  PID NUMBER,
+  FOREIGN KEY (PID) REFERENCES Publisher(PID)
+);
+
+CREATE TABLE Author (
+  AID NUMBER PRIMARY KEY,
+  AName VARCHAR2(50),
+  State VARCHAR2(20),
+  City VARCHAR2(20),
+  ZIP VARCHAR2(10),
+  Phone VARCHAR2(15),
+  URL VARCHAR2(50)
+);
+
+-- 2. Insert sample data
+INSERT INTO Publisher VALUES (1, 'MEHTA', 'MG Road', 'Maharashtra', '9876543210', 'mehta@pub.com');
+INSERT INTO Publisher VALUES (2, 'OXFORD', 'Br Road', 'Delhi', '9876501234', 'oxford@pub.com');
+
+INSERT INTO Author VALUES (101, 'CHETAN BHAGAT', 'Maharashtra', 'Pune', '411001', '9988776655', 'chetan.com');
+INSERT INTO Author VALUES (102, 'RAVI KUMAR', 'Karnataka', 'Bangalore', '560001', '9876543212', 'ravi.com');
+INSERT INTO Author VALUES (103, 'CANDICE SMITH', 'Maharashtra', 'Pune', '411002', '9988771122', 'candice.com');
+INSERT INTO Author VALUES (104, 'KORTH', 'Maharashtra', 'Mumbai', '400001', '9988773344', 'korth.com');
+
+INSERT INTO Book VALUES (201, 'Half Girlfriend', 'Romance', 350, DATE '2014-10-01', 2014, 200, 1);
+INSERT INTO Book VALUES (202, 'Revolution 2020', 'Drama', 300, DATE '2011-03-15', 2011, 150, 1);
+INSERT INTO Book VALUES (203, 'Oxford English', 'Education', 500, DATE '2009-05-10', 2009, 90, 2);
+INSERT INTO Book VALUES (204, 'Math Guide', 'Education', 450, DATE '2012-07-20', 2012, 120, 2);
+COMMIT;
+
+-- 3. Queries
+
+-- a. Retrieve city, phone, url of author named 'CHETAN BHAGAT'
+SELECT City, Phone, URL
+FROM Author
+WHERE UPPER(AName)='CHETAN BHAGAT';
+
+-- b. Retrieve book title, price, author name and url for publisher 'MEHTA'
+SELECT b.Book_Title, b.Price, a.AName, a.URL
+FROM Book b
+JOIN Publisher p ON b.PID = p.PID
+JOIN Author a ON a.AID IN (101,102,103,104)  -- sample mapping
+WHERE UPPER(p.PName)='MEHTA';
+
+-- c. Update phone number of 'MEHTA' to 123456
+UPDATE Publisher
+SET Phone='123456'
+WHERE UPPER(PName)='MEHTA';
+
+-- d. Average, maximum, minimum price of each publisher
+SELECT p.PName, AVG(b.Price) AS Avg_Price, MAX(b.Price) AS Max_Price, MIN(b.Price) AS Min_Price
+FROM Book b
+JOIN Publisher p ON b.PID=p.PID
+GROUP BY p.PName;
+
+-- e. Delete books having page count < 100
+DELETE FROM Book
+WHERE Page_Count < 100;
+
+-- f. Authors residing in Pune and name starting with 'C'
+SELECT * FROM Author
+WHERE City='Pune' AND AName LIKE 'C%';
+
+-- g. Authors residing in same city as 'KORTH'
+SELECT * FROM Author
+WHERE City = (SELECT City FROM Author WHERE AName='KORTH');
+
+-- h. Books with copyright date before 2010
+SELECT * FROM Book
+WHERE Copyright_Date < DATE '2010-01-01';

@@ -1,0 +1,68 @@
+CREATE TABLE Branch (
+  BranchNo VARCHAR2(5) PRIMARY KEY,
+  Street VARCHAR2(50),
+  City VARCHAR2(30),
+  Postcode VARCHAR2(10)
+);
+
+CREATE TABLE Staff (
+  StaffNo VARCHAR2(5) PRIMARY KEY,
+  Fname VARCHAR2(20),
+  Lname VARCHAR2(20),
+  Position VARCHAR2(20),
+  Sex CHAR(1),
+  DOB DATE,
+  Salary NUMBER,
+  BranchNo VARCHAR2(5),
+  FOREIGN KEY (BranchNo) REFERENCES Branch(BranchNo)
+);
+
+CREATE TABLE PropertyForRent (
+  PropertyNo VARCHAR2(5) PRIMARY KEY,
+  Street VARCHAR2(50),
+  City VARCHAR2(30),
+  Postcode VARCHAR2(10),
+  Type VARCHAR2(15),
+  Rooms NUMBER,
+  Rent NUMBER,
+  StaffNo VARCHAR2(5),
+  BranchNo VARCHAR2(5),
+  FOREIGN KEY (StaffNo) REFERENCES Staff(StaffNo),
+  FOREIGN KEY (BranchNo) REFERENCES Branch(BranchNo)
+);
+
+INSERT INTO Branch VALUES ('B1','MG Road','Pune','411001');
+INSERT INTO Branch VALUES ('B2','FC Road','Pune','411041');
+
+INSERT INTO Staff VALUES ('S101','Aman','Patil','Manager','M',DATE '1990-05-12',50000,'B1');
+INSERT INTO Staff VALUES ('S106','Rina','Deshmukh','Clerk','F',DATE '1995-10-10',25000,'B2');
+INSERT INTO Staff VALUES ('S123','Aarti','Kale','Agent','F',DATE '1992-02-15',30000,'B1');
+
+INSERT INTO PropertyForRent VALUES ('P1','Main St','Pune','411001','Flat',3,20000,'S123','B1');
+INSERT INTO PropertyForRent VALUES ('P2','Market Rd','Pune','411041','House',4,25000,'S106','B2');
+
+UPDATE Staff SET Lname='Shinde' WHERE StaffNo='S106';
+
+DELETE FROM PropertyForRent WHERE BranchNo IN 
+   (SELECT BranchNo FROM Branch WHERE Postcode='411041');
+
+DELETE FROM Staff WHERE BranchNo IN 
+   (SELECT BranchNo FROM Branch WHERE Postcode='411041');
+
+DELETE FROM Branch WHERE Postcode='411041';
+
+SELECT * FROM Staff
+WHERE UPPER(Fname||Lname) LIKE '%A%A%';
+
+SELECT BranchNo, MAX(Salary) AS MaxSalary
+FROM Staff
+GROUP BY BranchNo
+ORDER BY MaxSalary DESC;
+
+SELECT * FROM PropertyForRent WHERE StaffNo='S123';
+
+SELECT AVG(Rent) AS AvgRent FROM PropertyForRent WHERE City='Pune';
+
+SELECT BranchNo, COUNT(*) AS TotalProperties
+FROM PropertyForRent
+GROUP BY BranchNo;

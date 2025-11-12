@@ -1,0 +1,76 @@
+-- Create tables
+CREATE TABLE Dept (
+  DeptNo NUMBER PRIMARY KEY,
+  DeptName VARCHAR2(20),
+  Location VARCHAR2(20)
+);
+
+CREATE TABLE Emp (
+  Eno NUMBER PRIMARY KEY,
+  Ename VARCHAR2(30),
+  Job VARCHAR2(20),
+  HireDate DATE,
+  Salary NUMBER(10,2),
+  Commission NUMBER(10,2),
+  DeptNo NUMBER,
+  FOREIGN KEY (DeptNo) REFERENCES Dept(DeptNo)
+);
+
+-- Insert sample data
+INSERT INTO Dept VALUES (10, 'Dev', 'Pune');
+INSERT INTO Dept VALUES (20, 'HR', 'Mumbai');
+INSERT INTO Dept VALUES (30, 'Sales', 'Delhi');
+
+INSERT INTO Emp VALUES (101, 'Isha', 'Manager', DATE '1980-05-12', 50000, 1000, 10);
+INSERT INTO Emp VALUES (102, 'Rahul', 'Salesman', DATE '1981-06-15', 30000, 500, 30);
+INSERT INTO Emp VALUES (103, 'Imran', 'Analyst', DATE '1981-02-20', 40000, NULL, 20);
+INSERT INTO Emp VALUES (104, 'Sneha', 'Salesman', DATE '1982-01-10', 28000, 300, 30);
+INSERT INTO Emp VALUES (105, 'Kiran', 'Clerk', DATE '1983-03-25', 25000, NULL, 10);
+COMMIT;
+
+-- 1. Max salary paid to salesman
+SELECT MAX(Salary) AS Max_Salary
+FROM Emp
+WHERE UPPER(Job)='SALESMAN';
+
+-- 2. Emp whose name starts with 'I'
+SELECT * FROM Emp
+WHERE Ename LIKE 'I%';
+
+-- 3. Emp joined before 30-Sept-81
+SELECT * FROM Emp
+WHERE HireDate < DATE '1981-09-30';
+
+-- 4. Emp details in descending order of salary
+SELECT * FROM Emp
+ORDER BY Salary DESC;
+
+-- 5. No. of emp & avg salary in dept 20
+SELECT COUNT(*) AS No_Of_Emp, AVG(Salary) AS Avg_Salary
+FROM Emp
+WHERE DeptNo=20;
+
+-- 6. Avg & min salary hiredate-wise for dept 10
+SELECT HireDate, AVG(Salary) AS Avg_Sal, MIN(Salary) AS Min_Sal
+FROM Emp
+WHERE DeptNo=10
+GROUP BY HireDate;
+
+-- 7. Emp name and its department
+SELECT e.Ename, d.DeptName
+FROM Emp e JOIN Dept d ON e.DeptNo = d.DeptNo;
+
+-- 8. Total salary paid to each department
+SELECT DeptNo, SUM(Salary) AS Total_Salary
+FROM Emp
+GROUP BY DeptNo;
+
+-- 9. Details of employees working in 'Dev' department
+SELECT e.*
+FROM Emp e JOIN Dept d ON e.DeptNo = d.DeptNo
+WHERE LOWER(d.DeptName)='dev';
+
+-- 10. Update salary of all employees in deptno 10 by 5%
+UPDATE Emp
+SET Salary = Salary * 1.05
+WHERE DeptNo = 10;

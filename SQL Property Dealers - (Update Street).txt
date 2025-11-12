@@ -1,0 +1,68 @@
+CREATE TABLE Branch (
+  BranchNo VARCHAR2(5) PRIMARY KEY,
+  Street VARCHAR2(50),
+  City VARCHAR2(30),
+  Postcode VARCHAR2(10)
+);
+
+CREATE TABLE Staff (
+  StaffNo VARCHAR2(5) PRIMARY KEY,
+  Fname VARCHAR2(20),
+  Lname VARCHAR2(20),
+  Position VARCHAR2(20),
+  Sex CHAR(1),
+  DOB DATE,
+  Salary NUMBER,
+  BranchNo VARCHAR2(5),
+  FOREIGN KEY (BranchNo) REFERENCES Branch(BranchNo)
+);
+
+CREATE TABLE PropertyForRent (
+  PropertyNo VARCHAR2(5) PRIMARY KEY,
+  Street VARCHAR2(50),
+  City VARCHAR2(30),
+  Postcode VARCHAR2(10),
+  Type VARCHAR2(15),
+  Rooms NUMBER,
+  Rent NUMBER,
+  StaffNo VARCHAR2(5),
+  BranchNo VARCHAR2(5),
+  FOREIGN KEY (StaffNo) REFERENCES Staff(StaffNo),
+  FOREIGN KEY (BranchNo) REFERENCES Branch(BranchNo)
+);
+
+INSERT INTO Branch VALUES ('1001','JM Road','Pune','411001');
+INSERT INTO Branch VALUES ('1002','FC Road','Mumbai','400001');
+
+INSERT INTO Staff VALUES ('S101','Aman','Patil','Manager','M',DATE '1990-05-12',50000,'1001');
+INSERT INTO Staff VALUES ('S102','Aarti','Kale','Saleswoman','F',DATE '1995-02-10',30000,'1001');
+INSERT INTO Staff VALUES ('S103','Ravi','Shah','Salesman','M',DATE '2003-07-15',25000,'1002');
+
+INSERT INTO PropertyForRent VALUES ('P1','Main St','Pune','411001','Flat',3,20000,'S101','1001');
+INSERT INTO PropertyForRent VALUES ('P2','Market Rd','Pune','411002','House',4,25000,'S102','1001');
+INSERT INTO PropertyForRent VALUES ('P3','Beach Rd','Mumbai','400001','Flat',2,18000,'S103','1002');
+
+UPDATE Branch SET Street='MG Road' WHERE BranchNo='1001';
+
+SELECT Fname, Lname, Salary
+FROM Staff
+WHERE Salary > (SELECT AVG(Salary) FROM Staff);
+
+SELECT Type, Rooms FROM PropertyForRent WHERE UPPER(City)='PUNE';
+
+SELECT Fname, Lname, Position
+FROM Staff
+WHERE LOWER(Position) IN ('salesman','saleswoman');
+
+SELECT COUNT(*) AS NoOfFlats
+FROM PropertyForRent
+WHERE LOWER(Type)='flat';
+
+SELECT Fname, Lname, DOB
+FROM Staff
+WHERE DOB < DATE '2004-01-01';
+
+
+SELECT BranchNo, COUNT(*) AS TotalStaff
+FROM Staff
+GROUP BY BranchNo;

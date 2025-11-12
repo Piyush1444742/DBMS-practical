@@ -1,0 +1,18 @@
+-- Step 1: Create the table
+CREATE TABLE areas (
+    radius NUMBER,
+    area   NUMBER
+);
+
+-- Step 2: PL/SQL Block to calculate area and insert into table
+DECLARE
+    r NUMBER;
+    a NUMBER;
+BEGIN
+    FOR r IN 5..9 LOOP
+        a := 3.1416 * r * r;  -- calculate area of circle
+        INSERT INTO areas(radius, area) VALUES(r, a);
+    END LOOP;
+    COMMIT;
+END;
+/

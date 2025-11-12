@@ -1,0 +1,92 @@
+--Step 1: Create Tables
+-- Department table
+CREATE TABLE Department (
+    DeptID NUMBER PRIMARY KEY,
+    Dname VARCHAR2(50),
+    Location VARCHAR2(50)
+);
+
+-- Employee table
+CREATE TABLE Employee (
+    EmpID NUMBER PRIMARY KEY,
+    Ename VARCHAR2(50),
+    Salary NUMBER,
+    Contactno VARCHAR2(15),
+    City VARCHAR2(50),
+    DeptID NUMBER,
+    CONSTRAINT fk_dept FOREIGN KEY(DeptID) REFERENCES Department(DeptID)
+);
+
+--Step 2: Sample Data
+INSERT INTO Department VALUES(1, 'HR', 'New York');
+INSERT INTO Department VALUES(2, 'Finance', 'London');
+INSERT INTO Department VALUES(3, 'IT', 'San Francisco');
+
+INSERT INTO Employee VALUES(101, 'Alice', 50000, '1234567890', 'New York', 1);
+INSERT INTO Employee VALUES(102, 'Bob', 60000, '9876543210', 'London', 2);
+INSERT INTO Employee VALUES(103, 'Charlie', 55000, '1112223333', 'San Francisco', 3);
+INSERT INTO Employee VALUES(104, 'David', 70000, '4445556666', 'New York', 2);
+INSERT INTO Employee VALUES(105, 'Eve', 65000, '7778889999', 'London', NULL); -- No dept
+
+--Display Employee Name and Department Name
+SELECT E.Ename, D.Dname
+FROM Employee E
+JOIN Department D ON E.DeptID = D.DeptID;
+
+--List employees with department names and locations (Inner Join / Natural Join)
+-- Using INNER JOIN
+SELECT E.Ename, D.Dname, D.Location
+FROM Employee E
+INNER JOIN Department D ON E.DeptID = D.DeptID;
+-- Using NATURAL JOIN (if column names match)
+-- SELECT Ename, Dname, Location FROM Employee NATURAL JOIN Department;
+
+--Display employees, location, department names matching employee table
+SELECT E.Ename, D.Dname, D.Location
+FROM Employee E
+JOIN Department D ON E.DeptID = D.DeptID;
+
+--Right Join: All departments with employee info
+SELECT E.Ename, E.Salary, D.Dname, D.Location
+FROM Employee E
+RIGHT JOIN Department D ON E.DeptID = D.DeptID;
+
+--Full Join: List all employees and all departments
+SELECT E.Ename, E.Salary, D.Dname, D.Location
+FROM Employee E
+FULL OUTER JOIN Department D ON E.DeptID = D.DeptID;
+
+--Cross Join: All possible combinations of employees and departments
+SELECT E.Ename, D.Dname
+FROM Employee E
+CROSS JOIN Department D;
+
+--Self Join: Employees in the same department
+SELECT E1.Ename AS Employee1, E2.Ename AS Employee2, E1.DeptID
+FROM Employee E1, Employee E2
+WHERE E1.DeptID = E2.DeptID
+  AND E1.EmpID < E2.EmpID;
+
+--Simple View: Employees with their department
+CREATE VIEW EmpDept AS
+SELECT E.Ename, E.Salary, D.Dname, D.Location
+FROM Employee E
+JOIN Department D ON E.DeptID = D.DeptID;
+
+--Complex View: High salary employees with dept info
+CREATE VIEW HighSalaryEmp AS
+SELECT E.Ename, E.Salary, D.Dname, D.Location
+FROM Employee E
+JOIN Department D ON E.DeptID = D.DeptID
+WHERE E.Salary > 60000;
+
+--Update Simple View
+-- Only updateable columns (depends on DB rules)
+UPDATE EmpDept
+SET Salary = Salary + 5000
+WHERE Ename = 'Alice';
+
+--Delete
+DROP VIEW EmpDept;
+DROP VIEW HighSalaryEmp;
+

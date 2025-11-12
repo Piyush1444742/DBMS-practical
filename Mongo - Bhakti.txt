@@ -1,0 +1,57 @@
+db.createCollection("student")
+db.student.insertMany([
+  { first_name: "Rahul", last_name: "Sharma", gender: "male", class: "TE A", age: 20, grd_point: 28, city: "Bangalore", course: "B.Tech" },
+  { first_name: "Bhakti", last_name: "Patil", gender: "female", class: "TE B", age: 19, grd_point: 32, city: "Mumbai", course: "B.Tech" },
+  { first_name: "Amit", last_name: "Kumar", gender: "male", class: "TE A", age: 21, grd_point: 35, city: "Bangalore", course: "B.Tech" },
+  { first_name: "Sneha", last_name: "Jadhav", gender: "female", class: "TE B", age: 18, grd_point: 29, city: "Pune", course: "B.Tech" },
+  { first_name: "Rohit", last_name: "Verma", gender: "male", class: "TE C", age: 22, grd_point: 40, city: "Bangalore", course: "B.Tech" },
+  { first_name: "Priya", last_name: "Shah", gender: "female", class: "TE A", age: 19, grd_point: 31, city: "Bangalore", course: "B.Tech" },
+  { first_name: "Kiran", last_name: "Patel", gender: "male", class: "TE B", age: 18, grd_point: 30, city: "Chennai", course: "B.Tech" },
+  { first_name: "Bhushan", last_name: "Jadhav", gender: "male", class: "TE B", age: 18, grd_point: 33, city: "Mumbai", course: "B.Tech" },
+  { first_name: "Manisha", last_name: "Singh", gender: "female", class: "TE A", age: 20, grd_point: 36, city: "Bangalore", course: "B.Tech" },
+  { first_name: "Akash", last_name: "Rao", gender: "male", class: "TE A", age: 19, grd_point: 27, city: "Bangalore", course: "B.Tech" }
+])
+
+db.student.find({
+  gender: "male",
+  $or: [
+    { class: "TE A" },
+    { grd_point: { $gte: 31 } }
+  ]
+})
+
+db.student.find({
+  city: "Bangalore",
+  age: { $lte: 19 }
+})
+
+
+db.student.updateOne(
+  { first_name: "Bhakti" },
+  { $set: { course: "MCA" } }
+)
+
+db.student.deleteMany({
+  age: 18,
+  gender: "male"
+})
+
+db.student.deleteMany({
+  last_name: "Jadhav",
+  class: "TE B"
+})
+
+db.student.find({
+  $nor: [
+    { age: 19 },
+    { grd_point: { $lt: 30 } }
+  ]
+})
+
+// Insert a new student
+db.student.save({ first_name: "Riya", last_name: "Deshmukh", gender: "female", class: "TE C", age: 21, grd_point: 34, city: "Bangalore", course: "B.Tech" })
+
+// Update an existing student by providing _id
+var student = db.student.findOne({ first_name: "Akash" })
+student.course = "MCA"
+db.student.save(student)
